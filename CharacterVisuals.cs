@@ -67,6 +67,8 @@ namespace Outerward
             if (__instance.VisualData is ModdedCharacterVisualData moddedData)
             {
                 RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
+                if (race==null)
+                    return true;
                 Material[] mats = renderer.sharedMaterials;
                 Material raceSkin = race.GetRaceMaterial(moddedData.Gender);
                 if (raceSkin != null)
@@ -177,8 +179,8 @@ namespace Outerward
             if(__instance.VisualData is ModdedCharacterVisualData moddedData)
             {
                 RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
-                if (race == null)
-                    return false;
+                if (race == null || !__instance.ShouldLoadDefaultHead())
+                    return true;
                 Transform transform = __instance.InstantiateVisuals(race.GetPart(RaceData.BodyPart.Head, moddedData.Gender, moddedData.HeadVariationIndex).transform);
                 if (transform)
                 {
@@ -203,8 +205,8 @@ namespace Outerward
             if(__instance.VisualData is ModdedCharacterVisualData moddedData)
             {
                 RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
-                if (race == null)
-                    return false;
+                if (race == null || !__instance.ShouldLoadDefaultArmor())
+                    return true;
                 Transform transform = __instance.InstantiateVisuals(race.GetPart(RaceData.BodyPart.Body, moddedData.Gender).transform, null);
                 if (transform)
                 {
@@ -230,8 +232,8 @@ namespace Outerward
             if (__instance.VisualData is ModdedCharacterVisualData moddedData)
             {
                 RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
-                if (race == null)
-                    return false;
+                if (race == null || !__instance.ShouldLoadDefaultBoots())
+                    return true;
                 Transform transform = __instance.InstantiateVisuals(race.GetPart(RaceData.BodyPart.Feet, moddedData.Gender).transform, null);
                 if (transform)
                 {
@@ -255,10 +257,11 @@ namespace Outerward
             {
                 RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
                 if (race == null)
-                    return false;
+                    return true;
                 __instance.ApplyDefaultSkins(_renderer);
+                return false;
             }
-            return false;
+            return true;
         }
         [HarmonyPostfix]
         [HarmonyPatch("EquipVisuals")]
@@ -276,7 +279,7 @@ namespace Outerward
             if (__instance.VisualData is ModdedCharacterVisualData moddedData)
                 race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
             if (race == null)
-                return false;
+                return true;
             switch (_slotID)
             {
                 case EquipmentSlot.EquipmentSlotIDs.Helmet:
