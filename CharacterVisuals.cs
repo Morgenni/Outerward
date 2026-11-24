@@ -1,11 +1,23 @@
 ﻿using HarmonyLib;
+using System.Linq;
 using UnityEngine;
 
 namespace Outerward
 {
     public static class CharacterVisualsExtensions
     {
-        static Material MakeTransparent(Material matSource)
+        public static bool HasSkinMaterial(this CharacterVisuals __instance, EquipmentSlot.EquipmentSlotIDs slot)
+        {
+            bool materialExists = slot switch
+            {
+                EquipmentSlot.EquipmentSlotIDs.Helmet => __instance.EquippedBodyVisuals.Renderer.sharedMaterials.FirstOrDefault(x=>x.name.Contains("_skin")) != null,
+                EquipmentSlot.EquipmentSlotIDs.Chest => __instance.EquippedBodyVisuals.Renderer.sharedMaterials.FirstOrDefault(x=>x.name.Contains("_skin")) != null,
+                EquipmentSlot.EquipmentSlotIDs.Foot => __instance.EquippedFootVisuals.Renderer.sharedMaterials.FirstOrDefault(x=>x.name.Contains("_skin")) != null,
+                _ => false
+            };
+            return materialExists;
+        }
+        internal static Material MakeTransparent(Material matSource)
         {
             Material mat = new Material(matSource);
             mat.SetInt("_Mode", 3);
@@ -20,69 +32,6 @@ namespace Outerward
             //mat.EnableKeyword("_ALPHABLEND_ON");
             mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
             return mat;
-        }
-        public static bool RemoveSkin(this CharacterVisuals __instance, SkinnedMeshRenderer renderer)
-        {
-            int? skinMat = null;
-            Material[] materials = renderer.sharedMaterials;
-            for (int i = 0; i < materials.Length; i++)
-                if (materials[i].name.Contains("_skin"))
-                {
-                    skinMat = i;
-                    materials[i] = MakeTransparent(materials[i]);
-                    break;
-                }
-            renderer.sharedMaterials = materials;
-            return skinMat != null;
-        }
-        public static void ApplySkinMaterial(this CharacterVisuals __instance, EquipmentSlot.EquipmentSlotIDs slot, SkinnedMeshRenderer renderer)
-        {
-            if (__instance.VisualData is ModdedCharacterVisualData moddedData)
-            {
-                RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
-                switch (slot)
-                {
-                    case EquipmentSlot.EquipmentSlotIDs.Chest:
-                        if (race.ForceDefaultBody)
-                            __instance.RemoveSkin(renderer);
-                        else
-                            __instance.ApplySkinMaterial(renderer);
-                        break;
-                    case EquipmentSlot.EquipmentSlotIDs.Foot:
-                        if (race.ForceDefaultFeet)
-                            __instance.RemoveSkin(renderer);
-                        else
-                            __instance.ApplySkinMaterial(renderer);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else
-                __instance.ApplySkinMaterial(renderer);
-        }
-        public static bool ApplyDefaultSkins(this CharacterVisuals __instance, SkinnedMeshRenderer renderer)
-        {
-            bool raceExists = false;
-            if (__instance.VisualData is ModdedCharacterVisualData moddedData)
-            {
-                RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
-                if (race==null)
-                    return true;
-                Material[] mats = renderer.sharedMaterials;
-                Material raceSkin = race.GetRaceMaterial(moddedData.Gender);
-                if (raceSkin != null)
-                    raceSkin = new(raceSkin);
-                for (int i = 0; i < mats.Length; i++)
-                    if (mats[i].name.Contains("_skin"))
-                    {
-                        raceExists = true;
-                        raceSkin.name = mats[i].name;
-                        mats[i] = raceSkin;
-                    }
-                renderer.sharedMaterials = mats;
-            }
-            return raceExists;
         }
         public static void LoadCharacterCreationHair(this CharacterVisuals __instance, string raceId, int _gender, int _hairStyleIndex, int _hairColorIndex)
         {
@@ -179,8 +128,9 @@ namespace Outerward
             if(__instance.VisualData is ModdedCharacterVisualData moddedData)
             {
                 RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
-                if (race == null || !__instance.ShouldLoadDefaultHead())
-                    return true;
+                bool loadAsDefault = race == null;
+                if (loadAsDefault || !__instance.ShouldLoadDefaultHead())
+                    return loadAsDefault;
                 Transform transform = __instance.InstantiateVisuals(race.GetPart(RaceData.BodyPart.Head, moddedData.Gender, moddedData.HeadVariationIndex).transform);
                 if (transform)
                 {
@@ -205,21 +155,21 @@ namespace Outerward
             if(__instance.VisualData is ModdedCharacterVisualData moddedData)
             {
                 RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
-                if (race == null || !__instance.ShouldLoadDefaultArmor())
-                    return true;
+                bool loadAsDefault = race == null;
+                if (loadAsDefault || !__instance.ShouldLoadDefaultArmor())
+                    return loadAsDefault;
                 Transform transform = __instance.InstantiateVisuals(race.GetPart(RaceData.BodyPart.Body, moddedData.Gender).transform, null);
                 if (transform)
                 {
                     transform.SetParent(__instance.transform, false);
                     transform.ResetLocal(true);
-                    //TODO: handle armorvisuals for non-outward assets later
+                    //nvm I'll just use sideloader some day
                     __instance.DefaultBodyVisuals = transform.GetComponent<ArmorVisuals>();
                     __instance.DefaultBodyVisuals.ApplyToCharacterVisuals(__instance);
                     __instance.DefaultBodyVisuals.gameObject.SetActive(true);
-                    __instance.ApplySkinMaterial(EquipmentSlot.EquipmentSlotIDs.Chest,__instance.DefaultBodyVisuals.Renderer);
+                    if (race.UseRaceMaterial)
+                        __instance.ApplySkinMaterial(__instance.DefaultBodyVisuals.Renderer);
                     __instance.FinalizeSkinnedRenderer(__instance.DefaultBodyVisuals.Renderer);
-                    if (!Application.isPlaying)
-                        __instance.EditorDefaultVisuals[1] = __instance.m_defaultBodyVisuals;
                     return false;
                 }
             }
@@ -232,8 +182,9 @@ namespace Outerward
             if (__instance.VisualData is ModdedCharacterVisualData moddedData)
             {
                 RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
-                if (race == null || !__instance.ShouldLoadDefaultBoots())
-                    return true;
+                bool loadAsDefault = race == null;
+                if (loadAsDefault || !__instance.ShouldLoadDefaultBoots())
+                    return loadAsDefault;
                 Transform transform = __instance.InstantiateVisuals(race.GetPart(RaceData.BodyPart.Feet, moddedData.Gender).transform, null);
                 if (transform)
                 {
@@ -242,7 +193,8 @@ namespace Outerward
                     __instance.DefaultFootVisuals = transform.GetComponent<ArmorVisuals>();
                     __instance.DefaultFootVisuals.ApplyToCharacterVisuals(__instance);
                     __instance.DefaultFootVisuals.gameObject.SetActive(true);
-                    __instance.ApplySkinMaterial(EquipmentSlot.EquipmentSlotIDs.Foot,__instance.DefaultFootVisuals.Renderer);
+                    if (race.UseRaceMaterial)
+                        __instance.ApplySkinMaterial(__instance.DefaultFootVisuals.Renderer);
                     __instance.FinalizeSkinnedRenderer(__instance.DefaultFootVisuals.Renderer);
                     return false;
                 }
@@ -258,17 +210,21 @@ namespace Outerward
                 RaceData race = ModdedCharacterVisualData.GetRace(moddedData.RaceGUID);
                 if (race == null)
                     return true;
-                __instance.ApplyDefaultSkins(_renderer);
+                Material[] mats = _renderer.sharedMaterials;
+                Material raceSkin = race.GetRaceMaterial(moddedData.Gender);
+                if (raceSkin != null)
+                    raceSkin = new(raceSkin);
+                for (int i = 0; i < mats.Length; i++)
+                    if (mats[i].name.Contains("_skin"))
+                    {
+                        raceSkin.name = mats[i].name;
+                        mats[i] = raceSkin;
+                    }
+                _renderer.sharedMaterials = mats;
                 return false;
             }
-            return true;
-        }
-        [HarmonyPostfix]
-        [HarmonyPatch("EquipVisuals")]
-        public static void EquipVisuals(CharacterVisuals __instance, EquipmentSlot.EquipmentSlotIDs _slotID, ArmorVisuals _visuals)
-        {
-            if (__instance.VisualData is ModdedCharacterVisualData moddedData && __instance.UseDefaultVisuals)
-                __instance.ApplySkinMaterial(_slotID,_visuals.Renderer);
+            else
+                return true;
         }
         [HarmonyPrefix]
         [HarmonyPatch("ActivateDefaultVisuals")]
@@ -295,7 +251,7 @@ namespace Outerward
                             __instance.DefaultHelmVisuals.gameObject.SetActive(true);
                     }
                     else if (!_activate && __instance.DefaultHelmVisuals != null)
-                        __instance.DefaultHelmVisuals.gameObject.SetActive(race.ForceDefaultHead);
+                        __instance.DefaultHelmVisuals.gameObject.SetActive(race.ForceDefaultHead && __instance.HasSkinMaterial(_slotID));
                     break;
                 case EquipmentSlot.EquipmentSlotIDs.Chest:
                     if (_activate)
@@ -309,20 +265,21 @@ namespace Outerward
                             __instance.DefaultBodyVisuals.gameObject.SetActive(true);
                     }
                     else if (!_activate && __instance.DefaultBodyVisuals != null)
-                        __instance.DefaultBodyVisuals.gameObject.SetActive(race.ForceDefaultBody);
+                        __instance.DefaultBodyVisuals.gameObject.SetActive(race.ForceDefaultBody && __instance.HasSkinMaterial(_slotID));
                     break;
                 case EquipmentSlot.EquipmentSlotIDs.Foot:
-                    if (_activate && __instance.DefaultFootVisuals == null)
+                    if (_activate)
                     {
-                        __instance.LoadDefaultBoots();
-                        __instance.m_visualsSkinnedMeshCenterSize[3] = __instance.DefaultFootVisuals.GetComponent<SkinnedMeshRenderer>().localBounds;
+                        if (__instance.DefaultFootVisuals == null)
+                        {
+                            __instance.LoadDefaultBoots();
+                            __instance.m_visualsSkinnedMeshCenterSize[3] = __instance.DefaultFootVisuals.GetComponent<SkinnedMeshRenderer>().localBounds;
+                        }
+                        else
+                            __instance.DefaultFootVisuals.gameObject.SetActive(true);
                     }
                     else if (!_activate && __instance.DefaultFootVisuals != null)
-                    {
-                        armorVisuals = __instance.DefaultFootVisuals;
-                        armorVisuals.gameObject.SetActive(race.ForceDefaultFeet);
-                        __instance.DefaultFootVisuals = null;
-                    }
+                        __instance.DefaultFootVisuals.gameObject.SetActive(race.ForceDefaultFeet && __instance.HasSkinMaterial(_slotID));
                     break;
             }
             __instance.SetSkinnedMeshRendersLarge(__instance.m_largeBounds);
@@ -337,7 +294,10 @@ namespace Outerward
         [HarmonyPrefix]
         public static void InitDefaultVisuals(CharacterVisuals __instance)
         {
-            __instance.m_character.VisualData = new ModdedCharacterVisualData(__instance.m_character.VisualData);
+            if (__instance.UseDefaultVisuals)
+                __instance.m_character.VisualData = new ModdedCharacterVisualData(__instance.m_character.VisualData);
+            else if (__instance.m_character.VisualData.GetType() == typeof(ModdedCharacterVisualData))
+                __instance.m_character.VisualData = new CharacterVisualData(__instance.m_character.VisualData);
         }
     }
 }

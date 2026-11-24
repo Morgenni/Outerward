@@ -16,10 +16,26 @@ namespace Outerward
             HairColor
         }
         internal Dictionary<BodyPart, Dictionary<Character.Gender, List<object>>> visualsLookup = [];
+        public string Name
+        {
+            get
+            {
+                if (LocalizationManager.m_instance.m_generalLocalization.TryGetValue(GUID, out string value))
+                    return value;
+                return null;
+            }
+            set
+            {
+                if (LocalizationManager.m_instance.m_generalLocalization.TryGetValue(GUID, out _))
+                    LocalizationManager.m_instance.m_generalLocalization[GUID] = value;
+                LocalizationManager.m_instance.m_generalLocalization.Add(GUID, value);
+            }
+        }
         public bool AllowDefaultHairs = true;
         public bool ForceDefaultHead = false;
         public bool ForceDefaultBody = false;
         public bool ForceDefaultFeet = false;
+        public bool UseRaceMaterial = true;
         public bool GenderHair = false;
         public Material GetRaceMaterial(Character.Gender gender)
         {
@@ -85,6 +101,7 @@ namespace Outerward
             }
             return (T)returnee;
         }
+        public void SetRaceMaterial(Material skin) => SetRaceMaterial([skin]);
         public void SetRaceMaterial(Material[] skins)
         {
             for (int i = 0; i< skins.Length; i++)

@@ -3,7 +3,7 @@ This mod has not been extensively tested just yet, thus may cause issues during 
 
 ## Outerward
 
-![OuterwardLogo](https://cdn.discordapp.com/attachments/1451966533562794084/1573793275863896275/OutwardLogo.png?ex=6b034cb4&is=6b01fb34&hm=f95c83612f8a251f0d543e736a769cb071e769ba8803c6c37c651784bbbcf963&)
+![OuterwardLogo](https://raw.githubusercontent.com/Morgenni/Outerward/master/Assets/OuterwardLogo.png)
 
 **Outerward** is a custom race mod for Outward which adds more races to the game.<br>
 (Currently) Adds 1 new race to the game.
@@ -11,7 +11,7 @@ This mod has not been extensively tested just yet, thus may cause issues during 
 ## New Race(s)
 
 - **Mertonfolk**, the Skeleton race.<br>
-![JimbobMyBeloved](https://cdn.discordapp.com/attachments/1451966533562794084/1573794600131363046/image.png?ex=6b034df0&is=6b01fc70&hm=e561f7231f00c57b53622eb9d72427a8fd9b97cb378a0805973ded7404d1a53a&)(This makes as much sense as Myriade being in the game LOL...)<br>
+![MertonfolkPreview](https://raw.githubusercontent.com/Morgenni/Outerward/master/Assets/MertonfolkPreview.png)(This makes as much sense as Myriade being in the game LOL...)<br>
 
 Third-party race documentation to be done and support to be tested, all assets used in this mod is using Outward's resources. (Merton's set.)
 

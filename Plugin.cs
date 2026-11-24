@@ -14,7 +14,7 @@ namespace Outerward
     {
         internal const string PLUGIN_GUID = "com.Morgenni.Outerward";
         internal const string PLUGIN_NAME = "Outerward";
-        internal const string PLUGIN_VERSION = "0.0.1";
+        internal const string PLUGIN_VERSION = "0.0.3";
         internal static new ManualLogSource Logger;
         static readonly Type[] serializeMCVDTypes = { typeof(CharacterSave),typeof(EnvironmentSave) };
         private void Awake()
@@ -70,8 +70,10 @@ namespace Outerward
             skeletonRace.AddBodyPart(RaceData.BodyPart.Feet,  skeletonFeet);
             skeletonRace.ForceDefaultBody = true;
             skeletonRace.ForceDefaultFeet = true;
-            skeletonRace.SetRaceMaterial(skeletonBody.GetComponent<SkinnedMeshRenderer>().sharedMaterials);
-            LocalizationManager.m_instance.m_generalLocalization.Add($"{PLUGIN_NAME}.Skeleton", "Mertonfolk");
+            skeletonRace.UseRaceMaterial = false;
+            Material transparentMaterial = skeletonBody.GetComponent<SkinnedMeshRenderer>().material;
+            skeletonRace.SetRaceMaterial(CharacterVisualsExtensions.MakeTransparent(transparentMaterial));
+            skeletonRace.Name="Mertonfolk";
             ResourceLoaded = true;
         }
     }

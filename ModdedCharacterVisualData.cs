@@ -40,7 +40,7 @@ namespace Outerward
                 return null;
             if (!modRaces.ContainsKey(GUID))
             {
-                OuterwardPlugin.Logger.LogMessage($"Successfully registered race: {GUID}");
+                OuterwardPlugin.Logger.LogMessage($"Race registered: {GUID}");
                 modRaces.Add(GUID, new RaceData(GUID));
                 RacesByIndex.Add(GUID);
             }
