@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+  <Name>Mertonfolk</Name>
+  <ForceDefaultBody>true</ForceDefaultBody>
+  <ForceDefaultFeet>true</ForceDefaultFeet>
+  <UseRaceMaterial>false</UseRaceMaterial>
+  <BodyParts>
+    <Head>Assets/_Prefabs/_ItemsAssets/3000000_Armors/3200031_SkeletonHelm_e_v</Head>
+    <Body>Assets/_Prefabs/_ItemsAssets/3000000_Armors/3200030_Skeleton_e_v</Body>
+    <Feet>Assets/_Prefabs/_ItemsAssets/3000000_Armors/3200032_SkeletonBoots_e_v</Feet>
+  </BodyParts>
+  <TransparentSkin>true</TransparentSkin>
+</root>
