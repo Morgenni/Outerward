@@ -26,10 +26,6 @@
     <PackageReference Include="Outward.GameLibs" Version="2022.5.18-r.0" />
     <PackageReference Include="UnityEngine.Modules" Version="2020.3.26" IncludeAssets="compile" />
   </ItemGroup>
-  <Target Name="CopyConfig" AfterTargets="Build">
-    <Copy SourceFiles="$(ProjectDir)\bin\Debug\net472\Outerward.dll" DestinationFolder="C:\Users\xboxm\AppData\Roaming\r2modmanPlus-local\OutwardDe\profiles\Default\BepInEx\plugins\Morgenni-Outerward" />
-    <Copy SourceFiles="$(ProjectDir)\bin\Debug\net472\Outerward.pdb" DestinationFolder="C:\Users\xboxm\AppData\Roaming\r2modmanPlus-local\OutwardDe\profiles\Default\BepInEx\plugins\Morgenni-Outerward" />
-  </Target>
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
   </ItemGroup>
