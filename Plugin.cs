@@ -4,6 +4,8 @@ using HarmonyLib;
 using MapMagic;
 using ParadoxNotion.Serialization.FullSerializer;
 using System;
+using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
 
@@ -60,20 +62,19 @@ namespace Outerward
                 asianRace.AddBodyPart(RaceData.BodyPart.Head, headObj, Character.Gender.Female);
             LocalizationManager.m_instance.m_generalLocalization["Outward.Kazite"] = LocalizationManager.m_instance.m_generalLocalization["CharacterCreation_Asian"];
 
-            RaceData skeletonRace = ModdedCharacterVisualData.GetRace($"{PLUGIN_NAME}.Skeleton");
-            GameObject
-                skeletonHead = ResourcesPrefabManager.Instance.GetItemVisualPrefab("Assets/_Prefabs/_ItemsAssets/3000000_Armors/3200031_SkeletonHelm_e_v").gameObject,
-                skeletonBody = ResourcesPrefabManager.Instance.GetItemVisualPrefab("Assets/_Prefabs/_ItemsAssets/3000000_Armors/3200030_Skeleton_e_v").gameObject,
-                skeletonFeet = ResourcesPrefabManager.Instance.GetItemVisualPrefab("Assets/_Prefabs/_ItemsAssets/3000000_Armors/3200032_SkeletonBoots_e_v").gameObject;
-            skeletonRace.AddBodyPart(RaceData.BodyPart.Head,  skeletonHead);
-            skeletonRace.AddBodyPart(RaceData.BodyPart.Body,  skeletonBody);
-            skeletonRace.AddBodyPart(RaceData.BodyPart.Feet,  skeletonFeet);
-            skeletonRace.ForceDefaultBody = true;
-            skeletonRace.ForceDefaultFeet = true;
-            skeletonRace.UseRaceMaterial = false;
-            Material transparentMaterial = skeletonBody.GetComponent<SkinnedMeshRenderer>().material;
-            skeletonRace.SetRaceMaterial(CharacterVisualsExtensions.MakeTransparent(transparentMaterial));
-            skeletonRace.Name="Mertonfolk";
+            foreach(string mod in Directory.GetDirectories(Paths.PluginPath,"*",SearchOption.TopDirectoryOnly))
+            {
+                string outerwardFolder = mod + @"\Outerward";
+                if (Directory.Exists(outerwardFolder))
+                    foreach (string file in Directory.GetFiles(outerwardFolder, "*.xml"))
+                    {
+                        string[] raceFilename = file.Split('\\').Last().Split(['.']);
+                        string modName = mod.Split('\\').Last().Split('-').Last();
+                        string raceGUID = $"{modName}.{raceFilename[raceFilename.Length - 2]}";
+                        RaceData race = ModdedCharacterVisualData.GetRace(raceGUID);
+                        race.FromXml(File.ReadAllText(file));
+                    }
+            }
             ResourceLoaded = true;
         }
     }
