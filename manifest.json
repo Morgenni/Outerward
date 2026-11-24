@@ -1,0 +1,9 @@
+{
+    "name": "Outerward",
+    "version_number": "0.0.3",
+    "website_url": "https://github.com/Morgenni/Outerward",
+    "description": "An Outward custom race mod. Adds a new Skeleton race.",
+    "dependencies": [
+        "BepInEx-BepInExPack_Outward-5.4.8"
+    ]
+}

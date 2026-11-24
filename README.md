@@ -18,6 +18,7 @@ Third-party race documentation to be done and support to be tested, all assets u
 ## Change Log
 
 0.0.3
+- Fixed feet and boots not appearing when they should.
 - Fixed race model rendering. (Better support for armor which uses skin material.)
 - Modded data is now only applied to humanoid NPCs to minimize the mod's reach, support custom race NPCs and solve the issue in 0.0.2.
 - Added support for special models.
