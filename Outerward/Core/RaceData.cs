@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Outerward.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,14 +14,14 @@ namespace Outerward
         internal void FromXml(string file) => FromXml(XDocument.Parse(file).Root);
         internal void FromXml(XElement xml)
         {
-            Name = xml.Element("Name")!=null ? xml.Element("Name").Value:Name;
-            UseRaceMaterial = xml.Element("UseRaceMaterial") != null ? bool.Parse(xml.Element("UseRaceMaterial").Value.ToLower()) : UseRaceMaterial;
-            ForceDefaultBody = xml.Element("ForceDefaultBody") != null ? bool.Parse(xml.Element("ForceDefaultBody").Value.ToLower()) : ForceDefaultBody;
-            ForceDefaultFeet = xml.Element("ForceDefaultFeet") != null ? bool.Parse(xml.Element("ForceDefaultFeet").Value.ToLower()) : ForceDefaultFeet;
-            ForceDefaultHead = xml.Element("ForceDefaultHead") != null ? bool.Parse(xml.Element("ForceDefaultHead").Value.ToLower()) : ForceDefaultHead;
-            AllowDefaultHairs = xml.Element("AllowDefaultHairs") != null ? bool.Parse(xml.Element("AllowDefaultHairs").Value.ToLower()) : AllowDefaultHairs;
-            UseRaceMaterial = xml.Element("UseRaceMaterial") != null ? bool.Parse(xml.Element("UseRaceMaterial").Value.ToLower()) : UseRaceMaterial;
-            GenderHair = xml.Element("GenderHair") != null ? bool.Parse(xml.Element("GenderHair").Value.ToLower()) : GenderHair;
+            Name = xml.ValueOrNull("Name") ?? Name;
+            UseRaceMaterial = xml.ValueOrNull<bool>("UseRaceMaterial") ?? UseRaceMaterial;
+            ForceDefaultBody = xml.ValueOrNull<bool>("ForceDefaultBody") ?? ForceDefaultBody;
+            ForceDefaultFeet = xml.ValueOrNull<bool>("ForceDefaultFeet") ?? ForceDefaultFeet;
+            ForceDefaultHead = xml.ValueOrNull<bool>("ForceDefaultHead") ?? ForceDefaultHead;
+            AllowDefaultHairs = xml.ValueOrNull<bool>("AllowDefaultHairs") ?? AllowDefaultHairs;
+            GenderHair = xml.ValueOrNull<bool>("GenderHair") ?? GenderHair;
+            GUID = xml.ValueOrNull("GUID") ?? GUID;
             if (xml.Element("BodyParts") != null)
             {
                 foreach(XElement part in xml.Element("BodyParts").Elements())
@@ -45,7 +46,7 @@ namespace Outerward
             //}
             //CUSTOM RACE MATERIAL DESERIALIZING TO BE DONE
         }
-        string GUID;
+        public string GUID="";
         public enum BodyPart
         {
             Head,

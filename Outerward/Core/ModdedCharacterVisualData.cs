@@ -34,16 +34,23 @@ namespace Outerward
         }
         internal static List<string> RacesByIndex = [];
         internal static Dictionary<string, RaceData> modRaces = [];
+        public static void AddRace(RaceData race)
+        {
+            string GUID = race.GUID;
+            if (GUID == "")
+                return;
+            if (!modRaces.ContainsKey(GUID))
+            {
+                OuterwardPlugin.Logger.LogMessage($"Race registered: {GUID}");
+                modRaces.Add(GUID, race);
+                RacesByIndex.Add(GUID);
+            }
+        }
         public static RaceData GetRace(string GUID)
         {
             if (GUID == "")
                 return null;
-            if (!modRaces.ContainsKey(GUID))
-            {
-                OuterwardPlugin.Logger.LogMessage($"Race registered: {GUID}");
-                modRaces.Add(GUID, new RaceData(GUID));
-                RacesByIndex.Add(GUID);
-            }
+            AddRace(new RaceData(GUID));
             return modRaces[GUID];
         }
         public void CopyFromClass(object copy)

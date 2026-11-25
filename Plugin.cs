@@ -71,8 +71,9 @@ namespace Outerward
                         string[] raceFilename = file.Split('\\').Last().Split(['.']);
                         string modName = mod.Split('\\').Last().Split('-').Last();
                         string raceGUID = $"{modName}.{raceFilename[raceFilename.Length - 2]}";
-                        RaceData race = ModdedCharacterVisualData.GetRace(raceGUID);
+                        RaceData race = new(raceGUID);
                         race.FromXml(File.ReadAllText(file));
+                        ModdedCharacterVisualData.AddRace(race);
                     }
             }
             ResourceLoaded = true;
